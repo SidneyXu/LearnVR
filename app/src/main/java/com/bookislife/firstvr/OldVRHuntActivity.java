@@ -24,9 +24,9 @@ import javax.microedition.khronos.egl.EGLConfig;
 /**
  * Created by SidneyXu on 2016/05/12.
  */
-public class VRHuntActivity
+public class OldVRHuntActivity
         extends CardboardActivity implements CardboardView.StereoRenderer {
-    private static final String TAG = VRHuntActivity.class.getSimpleName();
+    private static final String TAG = OldVRHuntActivity.class.getSimpleName();
 
     private static final float Z_NEAR = 0.1f;
     private static final float Z_FAR = 100.0f;
