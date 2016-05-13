@@ -7,8 +7,10 @@ import android.opengl.Matrix;
 import android.os.Vibrator;
 import android.util.Log;
 
+import com.bookislife.firstvr.R;
 import com.bookislife.firstvr.model.Cube;
 import com.bookislife.firstvr.model.Floor;
+import com.google.vrtoolkit.cardboard.HeadTransform;
 import com.google.vrtoolkit.cardboard.audio.CardboardAudioEngine;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -109,6 +111,10 @@ public class World {
         float yaw = (float) Math.atan2(objPositionVec[0], -objPositionVec[2]);
 
         return Math.abs(pitch) < PITCH_LIMIT && Math.abs(yaw) < YAW_LIMIT;
+    }
+
+    public void onNewFrame(HeadTransform headTransform){
+
     }
 
     private void hideObject() {

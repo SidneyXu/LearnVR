@@ -3,11 +3,9 @@ package com.bookislife.firstvr.model;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.bookislife.firstvr.World;
-import com.bookislife.firstvr.WorldLayoutData;
+import com.bookislife.firstvr.world.World;
+import com.bookislife.firstvr.world.WorldLayoutData;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 /**
@@ -25,7 +23,7 @@ public class Cube implements GLObject {
     private int cubeModelViewProjectionParam;
     private int cubeLightPosParam;
 
-    private float[] modelCube;
+    public final float[] modelCube;
     private float[] modelViewProjection;
     private float[] modelView;
 

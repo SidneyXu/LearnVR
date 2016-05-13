@@ -32,12 +32,10 @@ public class WorldRender implements CardboardView.StereoRenderer {
 
     private volatile int soundId = CardboardAudioEngine.INVALID_ID;
 
-
     public WorldRender(World world) {
         this.world = world;
         // 3D audio
         cardboardAudioEngine = new CardboardAudioEngine(world.context, CardboardAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
-
     }
 
     public void onPause() {
@@ -53,10 +51,10 @@ public class WorldRender implements CardboardView.StereoRenderer {
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         // Build the Model part of the ModelView matrix.
-        Matrix.rotateM(modelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
+        Matrix.rotateM(modelCube, 0, World.TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
         // Build the camera matrix and apply it to the ModelView.
-        Matrix.setLookAtM(camera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(camera, 0, 0.0f, 0.0f, World.CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
         headTransform.getHeadView(headView, 0);
 
@@ -78,11 +76,11 @@ public class WorldRender implements CardboardView.StereoRenderer {
         Matrix.multiplyMM(view, 0, eye.getEyeView(), 0, camera, 0);
 
         // Set the position of the light
-        Matrix.multiplyMV(lightPosInEyeSpace, 0, view, 0, LIGHT_POS_IN_WORLD_SPACE, 0);
+        Matrix.multiplyMV(lightPosInEyeSpace, 0, view, 0, World.LIGHT_POS_IN_WORLD_SPACE, 0);
 
         // Build the ModelView and ModelViewProjection matrices
         // for calculating cube position and light.
-        float[] perspective = eye.getPerspective(Z_NEAR, Z_FAR);
+        float[] perspective = eye.getPerspective(World.Z_NEAR, World.Z_FAR);
         Matrix.multiplyMM(modelView, 0, view, 0, modelCube, 0);
         Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
         world.cube.onDraw();
@@ -95,14 +93,11 @@ public class WorldRender implements CardboardView.StereoRenderer {
 
     @Override
     public void onFinishFrame(Viewport viewport) {
-
     }
 
     @Override
     public void onSurfaceChanged(int i, int i1) {
         Log.i(TAG, "onSurfaceChanged()");
-
-
     }
 
     @Override
