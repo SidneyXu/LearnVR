@@ -1,7 +1,9 @@
 package com.bookislife.firstvr.model;
 
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
+import com.bookislife.firstvr.World;
 import com.bookislife.firstvr.WorldLayoutData;
 
 import java.nio.ByteBuffer;
@@ -36,39 +38,41 @@ public class Cube implements GLObject {
 
     private static final int COORDS_PER_VERTEX = 3;
 
-    public void Cube(int vertexShader, int passthroughShader) {
+    private Vertices coordsVertices;
+    private Vertices colorVertices;
+    private Vertices foundColodrVertices;
+    private Vertices normalVertices;
+    private float[] modelPosition;
+    private World world;
+
+    public Cube(World world, int vertexShader, int passthroughShader) {
         modelCube = new float[16];
+        modelPosition = new float[]{0.0f, 0.0f, -World.MAX_MODEL_DISTANCE / 2.0f};
 
-        ByteBuffer bbVertices = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COORDS.length * 4);
-        bbVertices.order(ByteOrder.nativeOrder());
-        cubeVertices = bbVertices.asFloatBuffer();
-        cubeVertices.put(WorldLayoutData.CUBE_COORDS);
-        cubeVertices.position(0);
-
-        ByteBuffer bbColors = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COLORS.length * 4);
-        bbColors.order(ByteOrder.nativeOrder());
-        cubeColors = bbColors.asFloatBuffer();
-        cubeColors.put(WorldLayoutData.CUBE_COLORS);
-        cubeColors.position(0);
-
-        ByteBuffer bbFoundColors =
-                ByteBuffer.allocateDirect(WorldLayoutData.CUBE_FOUND_COLORS.length * 4);
-        bbFoundColors.order(ByteOrder.nativeOrder());
-        cubeFoundColors = bbFoundColors.asFloatBuffer();
-        cubeFoundColors.put(WorldLayoutData.CUBE_FOUND_COLORS);
-        cubeFoundColors.position(0);
-
-        ByteBuffer bbNormals = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_NORMALS.length * 4);
-        bbNormals.order(ByteOrder.nativeOrder());
-        cubeNormals = bbNormals.asFloatBuffer();
-        cubeNormals.put(WorldLayoutData.CUBE_NORMALS);
-        cubeNormals.position(0);
+        coordsVertices=new Vertices(WorldLayoutData.CUBE_COORDS);
+        colorVertices =new Vertices(WorldLayoutData.CUBE_COLORS);
+        foundColodrVertices=new Vertices(WorldLayoutData.CUBE_FOUND_COLORS);
+        normalVertices=new Vertices(WorldLayoutData.CUBE_NORMALS);
 
         cubeProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(cubeProgram, vertexShader);
         GLES20.glAttachShader(cubeProgram, passthroughShader);
         GLES20.glLinkProgram(cubeProgram);
         GLES20.glUseProgram(cubeProgram);
+
+        cubePositionParam = GLES20.glGetAttribLocation(cubeProgram, "a_Position");
+        cubeNormalParam = GLES20.glGetAttribLocation(cubeProgram, "a_Normal");
+        cubeColorParam = GLES20.glGetAttribLocation(cubeProgram, "a_Color");
+
+        cubeModelParam = GLES20.glGetUniformLocation(cubeProgram, "u_Model");
+        cubeModelViewParam = GLES20.glGetUniformLocation(cubeProgram, "u_MVMatrix");
+        cubeModelViewProjectionParam = GLES20.glGetUniformLocation(cubeProgram, "u_MVP");
+        cubeLightPosParam = GLES20.glGetUniformLocation(cubeProgram, "u_LightPos");
+
+        GLES20.glEnableVertexAttribArray(cubePositionParam);
+        GLES20.glEnableVertexAttribArray(cubeNormalParam);
+        GLES20.glEnableVertexAttribArray(cubeColorParam);
+
     }
 
     @Override
@@ -92,14 +96,20 @@ public class Cube implements GLObject {
 
         // Set the normal positions of the cube, again for shading
         GLES20.glVertexAttribPointer(cubeNormalParam, 3, GLES20.GL_FLOAT, false, 0, cubeNormals);
-//        GLES20.glVertexAttribPointer(cubeColorParam, 4, GLES20.GL_FLOAT, false, 0,
-//                isLookingAtObject() ? cubeFoundColors : cubeColors);
+        GLES20.glVertexAttribPointer(cubeColorParam, 4, GLES20.GL_FLOAT, false, 0,
+                world.isLookingAtObject() ? cubeFoundColors : cubeColors);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
     }
 
     @Override
     public void onUpdate() {
+        Matrix.setIdentityM(modelCube, 0);
+        Matrix.translateM(modelCube, 0, modelPosition[0], modelPosition[1], modelPosition[2]);
 
+    }
+
+    public float[] getModelPosition() {
+        return modelPosition;
     }
 }

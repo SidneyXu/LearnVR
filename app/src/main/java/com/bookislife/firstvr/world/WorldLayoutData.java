@@ -1,4 +1,4 @@
-package com.bookislife.firstvr;
+package com.bookislife.firstvr.world;
 
 /**
  * Created by SidneyXu on 2016/05/12.

@@ -1,6 +1,7 @@
 package com.bookislife.firstvr.model;
 
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import java.nio.FloatBuffer;
 
@@ -31,6 +32,36 @@ public class Floor implements GLObject {
     private float[] modelViewProjection;
 
     private static final int COORDS_PER_VERTEX = 3;
+
+    private float floorDepth = 20f;
+
+
+    public Floor(int vertexShader, int gridShader) {
+        modelFloor = new float[16];
+
+        floorProgram = GLES20.glCreateProgram();
+        GLES20.glAttachShader(floorProgram, vertexShader);
+        GLES20.glAttachShader(floorProgram, gridShader);
+        GLES20.glLinkProgram(floorProgram);
+        GLES20.glUseProgram(floorProgram);
+
+        floorModelParam = GLES20.glGetUniformLocation(floorProgram, "u_Model");
+        floorModelViewParam = GLES20.glGetUniformLocation(floorProgram, "u_MVMatrix");
+        floorModelViewProjectionParam = GLES20.glGetUniformLocation(floorProgram, "u_MVP");
+        floorLightPosParam = GLES20.glGetUniformLocation(floorProgram, "u_LightPos");
+
+        floorPositionParam = GLES20.glGetAttribLocation(floorProgram, "a_Position");
+        floorNormalParam = GLES20.glGetAttribLocation(floorProgram, "a_Normal");
+        floorColorParam = GLES20.glGetAttribLocation(floorProgram, "a_Color");
+
+        GLES20.glEnableVertexAttribArray(floorPositionParam);
+        GLES20.glEnableVertexAttribArray(floorNormalParam);
+        GLES20.glEnableVertexAttribArray(floorColorParam);
+
+        Matrix.setIdentityM(modelFloor, 0);
+        Matrix.translateM(modelFloor, 0, 0, -floorDepth, 0); // Floor appears below user.
+
+    }
 
     @Override
     public void onDraw() {
