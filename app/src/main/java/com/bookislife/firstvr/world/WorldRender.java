@@ -19,14 +19,15 @@ public class WorldRender implements CardboardView.StereoRenderer {
 
     private static final String TAG = WorldRender.class.getSimpleName();
 
-    private float[] camera;
-    private float[] view;
-    private float[] headRotation;
-    private float[] headView;
-
     private final float[] lightPosInEyeSpace = new float[4];
 
     private World world;
+
+    private float[] headView;
+    private float[] headRotation;
+    private float[] camera;
+    private float[] view;
+
 
     public final CardboardAudioEngine cardboardAudioEngine;
 
@@ -34,6 +35,12 @@ public class WorldRender implements CardboardView.StereoRenderer {
 
     public WorldRender(World world) {
         this.world = world;
+
+        camera = new float[16];
+        view = new float[16];
+        headView = new float[16];
+        headRotation = new float[4];
+
         // 3D audio
         cardboardAudioEngine = new CardboardAudioEngine(world.context, CardboardAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
     }
@@ -51,7 +58,7 @@ public class WorldRender implements CardboardView.StereoRenderer {
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         // Build the Model part of the ModelView matrix.
-        Matrix.rotateM(modelCube, 0, World.TIME_DELTA, 0.5f, 0.5f, 1.0f);
+        Matrix.rotateM(world.cube.getModelCube(), 0, World.TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
         // Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(camera, 0, 0.0f, 0.0f, World.CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
@@ -78,17 +85,7 @@ public class WorldRender implements CardboardView.StereoRenderer {
         // Set the position of the light
         Matrix.multiplyMV(lightPosInEyeSpace, 0, view, 0, World.LIGHT_POS_IN_WORLD_SPACE, 0);
 
-        // Build the ModelView and ModelViewProjection matrices
-        // for calculating cube position and light.
-        float[] perspective = eye.getPerspective(World.Z_NEAR, World.Z_FAR);
-        Matrix.multiplyMM(modelView, 0, view, 0, modelCube, 0);
-        Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
-        world.cube.onDraw();
-
-        // Set modelView for the floor, so we draw floor in the correct location
-        Matrix.multiplyMM(modelView, 0, view, 0, modelFloor, 0);
-        Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
-        world.cube.onDraw();
+        world.updateModelView(eye);
     }
 
     @Override
@@ -107,7 +104,7 @@ public class WorldRender implements CardboardView.StereoRenderer {
         // 背景色
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f);
 
-        world.onSurfaceCreated(eglConfig);
+        world.initGLObjects();
 
         new Thread(
                 new Runnable() {

@@ -10,7 +10,7 @@ import java.nio.FloatBuffer;
 public class Vertices {
 
     private int vertexSize = 4;
-    private FloatBuffer vertices;
+    public final FloatBuffer vertices;
 
     public Vertices(float[] data) {
         ByteBuffer bbVertices = ByteBuffer.allocateDirect(data.length * vertexSize);

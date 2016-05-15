@@ -84,4 +84,8 @@ public class Floor implements GLObject {
     public void onUpdate() {
 
     }
+
+    public float[] getModelFloor() {
+        return modelFloor;
+    }
 }

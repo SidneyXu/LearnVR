@@ -6,8 +6,6 @@ import android.opengl.Matrix;
 import com.bookislife.firstvr.world.World;
 import com.bookislife.firstvr.world.WorldLayoutData;
 
-import java.nio.FloatBuffer;
-
 /**
  * Created by SidneyXu on 2016/05/12.
  */
@@ -23,14 +21,9 @@ public class Cube implements GLObject {
     private int cubeModelViewProjectionParam;
     private int cubeLightPosParam;
 
-    public final float[] modelCube;
+    private float[] modelCube;
     private float[] modelViewProjection;
     private float[] modelView;
-
-    private FloatBuffer cubeVertices;
-    private FloatBuffer cubeColors;
-    private FloatBuffer cubeFoundColors;
-    private FloatBuffer cubeNormals;
 
     private final float[] lightPosInEyeSpace = new float[4];
 
@@ -47,10 +40,10 @@ public class Cube implements GLObject {
         modelCube = new float[16];
         modelPosition = new float[]{0.0f, 0.0f, -World.MAX_MODEL_DISTANCE / 2.0f};
 
-        coordsVertices=new Vertices(WorldLayoutData.CUBE_COORDS);
-        colorVertices =new Vertices(WorldLayoutData.CUBE_COLORS);
-        foundColodrVertices=new Vertices(WorldLayoutData.CUBE_FOUND_COLORS);
-        normalVertices=new Vertices(WorldLayoutData.CUBE_NORMALS);
+        coordsVertices = new Vertices(WorldLayoutData.CUBE_COORDS);
+        colorVertices = new Vertices(WorldLayoutData.CUBE_COLORS);
+        foundColodrVertices = new Vertices(WorldLayoutData.CUBE_FOUND_COLORS);
+        normalVertices = new Vertices(WorldLayoutData.CUBE_NORMALS);
 
         cubeProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(cubeProgram, vertexShader);
@@ -87,15 +80,15 @@ public class Cube implements GLObject {
 
         // Set the position of the cube
         GLES20.glVertexAttribPointer(
-                cubePositionParam, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 0, cubeVertices);
+                cubePositionParam, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 0, coordsVertices.vertices);
 
         // Set the ModelViewProjection matrix in the shader.
         GLES20.glUniformMatrix4fv(cubeModelViewProjectionParam, 1, false, modelViewProjection, 0);
 
         // Set the normal positions of the cube, again for shading
-        GLES20.glVertexAttribPointer(cubeNormalParam, 3, GLES20.GL_FLOAT, false, 0, cubeNormals);
+        GLES20.glVertexAttribPointer(cubeNormalParam, 3, GLES20.GL_FLOAT, false, 0, normalVertices.vertices);
         GLES20.glVertexAttribPointer(cubeColorParam, 4, GLES20.GL_FLOAT, false, 0,
-                world.isLookingAtObject() ? cubeFoundColors : cubeColors);
+                world.isLookingAtObject() ? foundColodrVertices.vertices : colorVertices.vertices);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
     }
@@ -109,5 +102,9 @@ public class Cube implements GLObject {
 
     public float[] getModelPosition() {
         return modelPosition;
+    }
+
+    public float[] getModelCube() {
+        return modelCube;
     }
 }
